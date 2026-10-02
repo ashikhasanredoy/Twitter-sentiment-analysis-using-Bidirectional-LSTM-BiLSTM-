@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultContent = document.getElementById("result-content");
   const modelTag = document.getElementById("model-tag");
   const sentimentBanner = document.getElementById("sentiment-banner");
-  const sentimentIcon = document.getElementById("sentiment-icon");
   const sentimentLabel = document.getElementById("sentiment-label");
   const confidenceVal = document.getElementById("confidence-val");
   
@@ -29,8 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const batchResultsContainer = document.getElementById("batch-results-container");
   const batchTableBody = document.getElementById("batch-table-body");
 
-  const tabBtns = document.querySelectorAll(".tab-btn");
-  const tabContents = document.querySelectorAll(".tab-content");
+  const tabBtns = document.querySelectorAll(".segment-btn");
+  const tabContents = document.querySelectorAll(".tab-pane");
 
   tabBtns.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -49,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function checkHealth() {
     try {
       const res = await fetch("/api/health");
-      if (!res.ok) throw new Error("API not reachable");
+      if (!res.ok) throw new Error("API unreachable");
       const data = await res.json();
       
       const lstm = data.models?.lstm_ready;
@@ -58,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
       apiStatusEl.classList.remove("ready", "warning");
       if (lstm && bilstm) {
         apiStatusEl.classList.add("ready");
-        statusLabel.textContent = "LSTM & BiLSTM Ready";
+        statusLabel.textContent = "Models Ready";
       } else if (lstm || bilstm) {
         apiStatusEl.classList.add("ready");
         statusLabel.textContent = lstm ? "LSTM Ready" : "BiLSTM Ready";
@@ -66,23 +65,22 @@ document.addEventListener("DOMContentLoaded", () => {
         apiStatusEl.classList.add("warning");
         statusLabel.textContent = "Models Not Yet Trained";
       }
-    } catch (err) {
+    } catch {
       apiStatusEl.classList.remove("ready");
       apiStatusEl.classList.add("warning");
-      statusLabel.textContent = "Backend Offline";
+      statusLabel.textContent = "API Offline";
     }
   }
 
   checkHealth();
 
   tweetInput.addEventListener("input", () => {
-    const len = tweetInput.value.length;
-    charCounter.textContent = `${len} / 300`;
+    charCounter.textContent = `${tweetInput.value.length} / 300`;
   });
 
-  document.querySelectorAll(".chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      const sample = chip.getAttribute("data-text");
+  document.querySelectorAll(".pill-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const sample = btn.getAttribute("data-text");
       tweetInput.value = sample;
       charCounter.textContent = `${sample.length} / 300`;
       predictSingle();
@@ -92,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function predictSingle() {
     const text = tweetInput.value.trim();
     if (!text) {
-      alert("Please enter a tweet text to analyze.");
+      alert("Please enter text to analyze.");
       return;
     }
 
@@ -115,15 +113,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await res.json();
       renderPrediction(data);
     } catch (err) {
-      alert(`Prediction Error: ${err.message}`);
+      alert(`Error: ${err.message}`);
     } finally {
       btnPredict.disabled = false;
-      btnPredict.innerHTML = `
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-          <polygon points="5 3 19 12 5 21 5 3"></polygon>
-        </svg>
-        Analyze Sentiment
-      `;
+      btnPredict.textContent = "Analyze Sentiment";
     }
   }
 
@@ -132,20 +125,13 @@ document.addEventListener("DOMContentLoaded", () => {
     resultContent.classList.remove("hidden");
 
     modelTag.textContent = data.model_type.toUpperCase();
-    cleanedTextDisplay.textContent = data.cleaned_text || "(empty after cleaning)";
+    cleanedTextDisplay.textContent = data.cleaned_text || "-";
 
     const sentiment = data.sentiment.toLowerCase();
-    sentimentBanner.className = `sentiment-banner ${sentiment}`;
+    sentimentBanner.className = `score-banner ${sentiment}`;
 
-    const icons = {
-      positive: "😊",
-      neutral: "😐",
-      negative: "😔"
-    };
-
-    sentimentIcon.textContent = icons[sentiment] || "🔍";
     sentimentLabel.textContent = sentiment.toUpperCase();
-    confidenceVal.textContent = `${(data.confidence * 100).toFixed(1)}%`;
+    confidenceVal.textContent = `${Math.round(data.confidence * 100)}%`;
 
     const probs = data.probabilities || {};
     const pos = (probs.positive || 0) * 100;
@@ -167,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
   btnBatchPredict.addEventListener("click", async () => {
     const raw = batchInput.value.trim();
     if (!raw) {
-      alert("Please enter at least one tweet line.");
+      alert("Please enter at least one text line.");
       return;
     }
 
@@ -175,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const modelType = batchModelSelect.value;
 
     btnBatchPredict.disabled = true;
-    btnBatchPredict.textContent = "Processing batch...";
+    btnBatchPredict.textContent = "Processing...";
 
     try {
       const res = await fetch("/api/predict/batch", {
@@ -194,30 +180,24 @@ document.addEventListener("DOMContentLoaded", () => {
       
       data.predictions.forEach(p => {
         const tr = document.createElement("tr");
-        const sentLower = p.sentiment.toLowerCase();
+        const sent = p.sentiment.toLowerCase();
         tr.innerHTML = `
           <td>${escapeHtml(p.text)}</td>
           <td><code>${escapeHtml(p.cleaned_text)}</code></td>
-          <td><span class="badge" style="background: ${getBadgeColor(sentLower)}; color: #fff;">${p.sentiment}</span></td>
-          <td><strong>${(p.confidence * 100).toFixed(1)}%</strong></td>
+          <td><span class="count-badge">${escapeHtml(p.sentiment.toUpperCase())}</span></td>
+          <td><strong>${Math.round(p.confidence * 100)}%</strong></td>
         `;
         batchTableBody.appendChild(tr);
       });
 
       batchResultsContainer.classList.remove("hidden");
     } catch (err) {
-      alert(`Batch Error: ${err.message}`);
+      alert(`Error: ${err.message}`);
     } finally {
       btnBatchPredict.disabled = false;
-      btnBatchPredict.textContent = "Run Batch Prediction";
+      btnBatchPredict.textContent = "Run Batch";
     }
   });
-
-  function getBadgeColor(sent) {
-    if (sent === "positive") return "#10b981";
-    if (sent === "negative") return "#f43f5e";
-    return "#6366f1";
-  }
 
   function escapeHtml(text) {
     const div = document.createElement("div");
