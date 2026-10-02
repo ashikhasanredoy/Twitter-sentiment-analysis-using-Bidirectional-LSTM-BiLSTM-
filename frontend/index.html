@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Dual-Model Twitter Sentiment Analysis powered by Deep Learning (LSTM & BiLSTM)">
+  <title>Twitter Sentiment Analysis | Deep Learning Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="background-glow top-left"></div>
+  <div class="background-glow bottom-right"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="navbar">
+      <div class="logo-group">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="logo-title">Sentix Studio</h1>
+          <span class="logo-subtitle">LSTM vs BiLSTM Sentiment Analysis</span>
+        </div>
+      </div>
+
+      <div class="nav-controls">
+        <div class="status-indicator" id="api-status">
+          <span class="pulse-dot"></span>
+          <span class="status-text" id="status-label">Checking API...</span>
+        </div>
+        <a href="/docs" target="_blank" class="nav-link-btn" title="Open Swagger API documentation">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          API Docs
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="tab-predict" id="btn-tab-predict">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        Live Prediction
+      </button>
+      <button class="tab-btn" data-tab="tab-batch" id="btn-tab-batch">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        Batch Testing
+      </button>
+      <button class="tab-btn" data-tab="tab-eda" id="btn-tab-eda">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+        Dataset Analytics (EDA)
+      </button>
+    </div>
+
+    <!-- TAB 1: Single Prediction -->
+    <main class="tab-content active" id="tab-predict">
+      <div class="main-grid">
+        <!-- Input Card -->
+        <section class="glass-panel" aria-label="Tweet Input Area">
+          <div class="panel-header">
+            <h2>Analyze Tweet Sentiment</h2>
+            <div class="model-selector-wrapper">
+              <label for="model-select">Architecture:</label>
+              <select id="model-select" class="custom-select">
+                <option value="lstm">LSTM (Unidirectional)</option>
+                <option value="bilstm">BiLSTM (Bidirectional)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="input-wrapper">
+            <textarea
+              id="tweet-input"
+              rows="4"
+              placeholder="Paste or type a tweet here... (e.g. 'I absolutely love this new update! Highly recommended!')"
+              maxlength="300"
+            ></textarea>
+            <div class="input-meta">
+              <span id="char-counter">0 / 300</span>
+            </div>
+          </div>
+
+          <!-- Quick Samples -->
+          <div class="samples-wrapper">
+            <span class="samples-title">Try quick samples:</span>
+            <div class="sample-chips">
+              <button class="chip" data-text="So thrilled with the amazing customer support, thank you so much! #happy">🌟 Positive Tweet</button>
+              <button class="chip" data-text="Flight delayed by 5 hours with zero explanation. Truly terrible service!">😡 Negative Tweet</button>
+              <button class="chip" data-text="The tech keynote starts at 10:00 AM in room B3 tomorrow.">📄 Neutral Tweet</button>
+            </div>
+          </div>
+
+          <button id="btn-predict" class="btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Analyze Sentiment
+          </button>
+        </section>
+
+        <!-- Result Card -->
+        <section class="glass-panel result-panel" id="result-panel" aria-label="Sentiment Results">
+          <div class="panel-header">
+            <h2>Inference Insights</h2>
+            <span class="badge" id="model-tag">LSTM</span>
+          </div>
+
+          <div id="result-placeholder" class="placeholder-state">
+            <div class="placeholder-icon">💬</div>
+            <p>Enter a tweet and click <strong>Analyze Sentiment</strong> to generate predictions and probability scores.</p>
+          </div>
+
+          <div id="result-content" class="result-details hidden">
+            <!-- Sentiment Outcome Banner -->
+            <div class="sentiment-banner" id="sentiment-banner">
+              <div class="sentiment-icon" id="sentiment-icon">😊</div>
+              <div class="sentiment-info">
+                <span class="sentiment-label" id="sentiment-label">Positive</span>
+                <span class="sentiment-sub" id="sentiment-sub">Confidence Score: <strong id="confidence-val">94.8%</strong></span>
+              </div>
+            </div>
+
+            <!-- Probability Breakdown Bars -->
+            <div class="prob-breakdown">
+              <h3>Class Distribution</h3>
+              <div class="prob-row">
+                <span class="prob-name">Positive</span>
+                <div class="prob-bar-track">
+                  <div class="prob-bar-fill fill-pos" id="bar-pos" style="width: 0%"></div>
+                </div>
+                <span class="prob-pct" id="pct-pos">0%</span>
+              </div>
+
+              <div class="prob-row">
+                <span class="prob-name">Neutral</span>
+                <div class="prob-bar-track">
+                  <div class="prob-bar-fill fill-neu" id="bar-neu" style="width: 0%"></div>
+                </div>
+                <span class="prob-pct" id="pct-neu">0%</span>
+              </div>
+
+              <div class="prob-row">
+                <span class="prob-name">Negative</span>
+                <div class="prob-bar-track">
+                  <div class="prob-bar-fill fill-neg" id="bar-neg" style="width: 0%"></div>
+                </div>
+                <span class="prob-pct" id="pct-neg">0%</span>
+              </div>
+            </div>
+
+            <!-- Preprocessing Transparency -->
+            <div class="pipeline-card">
+              <h4>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                Preprocessing Pipeline (Cleaned Text)
+              </h4>
+              <p class="cleaned-text-preview" id="cleaned-text-display">...</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- TAB 2: Batch Testing -->
+    <div class="tab-content" id="tab-batch">
+      <section class="glass-panel">
+        <div class="panel-header">
+          <h2>Batch Tweet Sentiment Evaluator</h2>
+          <div class="model-selector-wrapper">
+            <label for="batch-model-select">Architecture:</label>
+            <select id="batch-model-select" class="custom-select">
+              <option value="lstm">LSTM</option>
+              <option value="bilstm">BiLSTM</option>
+            </select>
+          </div>
+        </div>
+        <p class="section-desc">Enter one tweet per line below to evaluate sentiment for multiple texts simultaneously.</p>
+        <textarea id="batch-input" rows="6" class="batch-textarea" placeholder="I love this phone!&#10;Battery drains in one hour, worst purchase.&#10;Delivery arrived today."></textarea>
+        <div class="action-row">
+          <button id="btn-batch-predict" class="btn-primary">Run Batch Prediction</button>
+        </div>
+        <div id="batch-results-container" class="batch-results-table-wrap hidden">
+          <table class="batch-table">
+            <thead>
+              <tr>
+                <th>Original Tweet</th>
+                <th>Cleaned Sequence</th>
+                <th>Sentiment</th>
+                <th>Confidence</th>
+              </tr>
+            </thead>
+            <tbody id="batch-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 3: Dataset Analytics (EDA) -->
+    <div class="tab-content" id="tab-eda">
+      <section class="glass-panel">
+        <div class="panel-header">
+          <h2>Exploratory Data Analysis & Visualizations</h2>
+          <span class="badge">27,480 Tweets</span>
+        </div>
+        <p class="section-desc">Visualizations generated from <code>notebooks/eda.py</code> exploring sentiment distribution, temporal trends, demographics, and vocabulary frequency.</p>
+        
+        <div class="eda-gallery">
+          <div class="gallery-card">
+            <h3>Sentiment Distribution</h3>
+            <img src="/figures/sentiment_distribution.png" alt="Sentiment Distribution" loading="lazy">
+          </div>
+          <div class="gallery-card">
+            <h3>Sentiment Trends by Time</h3>
+            <img src="/figures/sentiment_time.png" alt="Sentiment Trends by Time" loading="lazy">
+          </div>
+          <div class="gallery-card">
+            <h3>Sentiment by User Age</h3>
+            <img src="/figures/sentiment_age.png" alt="Sentiment by Age" loading="lazy">
+          </div>
+          <div class="gallery-card">
+            <h3>Top 10 Countries</h3>
+            <img src="/figures/country_distribution.png" alt="Country Distribution" loading="lazy">
+          </div>
+          <div class="gallery-card">
+            <h3>Positive Wordcloud</h3>
+            <img src="/figures/positive_wordcloud.png" alt="Positive Wordcloud" loading="lazy">
+          </div>
+          <div class="gallery-card">
+            <h3>Negative Wordcloud</h3>
+            <img src="/figures/negative_wordcloud.png" alt="Negative Wordcloud" loading="lazy">
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Twitter Sentiment Analysis Pipeline • LSTM & BiLSTM with Shared Preprocessing • Clean Modular Architecture</p>
+    </footer>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

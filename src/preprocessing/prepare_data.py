@@ -1,0 +1,130 @@
+import os
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+
+from src.preprocessing.clean_text import clean_tweet
+from src.preprocessing.tokenize import (
+    create_tokenizer,
+    tokenize_and_pad,
+    MAX_FEATURES,
+    MAX_LENGTH
+)
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+DEFAULT_DATA_PATH = os.path.join(BASE_DIR, "data/raw/training.csv")
+
+
+def load_dataset(data_path=None):
+    if data_path is None:
+        data_path = DEFAULT_DATA_PATH
+    if not os.path.exists(data_path):
+        # Fallback to local relative path if needed
+        data_path = "data/raw/training.csv"
+
+    df = pd.read_csv(data_path, encoding="latin1")
+    return df
+
+
+def prepare_data(data_path=None, test_size=0.2, val_size=None, random_state=42):
+    """
+    Load and preprocess sentiment analysis dataset.
+    Returns:
+        - If val_size is None:
+            (X_train, X_test, y_train, y_test, tokenizer, label_encoder, df)
+        - If val_size is provided (e.g. 0.1):
+            (X_train, X_val, X_test, y_train, y_val, y_test, tokenizer, label_encoder, df)
+    """
+    # -----------------------------
+    # 1. Load dataset
+    # -----------------------------
+    df = load_dataset(data_path)
+
+    # Clean missing values
+    df = df.dropna(subset=["text", "sentiment"]).reset_index(drop=True)
+
+    # -----------------------------
+    # 2. Clean text
+    # -----------------------------
+    df["clean_text"] = df["text"].apply(clean_tweet)
+
+    # -----------------------------
+    # 3. Encode labels
+    # -----------------------------
+    label_encoder = LabelEncoder()
+    df["target"] = label_encoder.fit_transform(df["sentiment"])
+    print(f"Encoded classes: {label_encoder.classes_} -> indices {[i for i in range(len(label_encoder.classes_))]}")
+
+    # -----------------------------
+    # 4. Tokenization & Padding
+    # -----------------------------
+    tokenizer = create_tokenizer(df["clean_text"].values, max_features=MAX_FEATURES)
+    X = tokenize_and_pad(df["clean_text"].values, tokenizer, max_length=MAX_LENGTH)
+
+    # -----------------------------
+    # 5. One-hot labels
+    # -----------------------------
+    y = pd.get_dummies(df["target"]).values
+
+    # -----------------------------
+    # 6. Train/Test (or Train/Val/Test) split
+    # -----------------------------
+    if val_size is not None and val_size > 0:
+        # First split into train and temp (val + test)
+        combined_test_size = test_size + val_size
+        X_train, X_temp, y_train, y_temp = train_test_split(
+            X,
+            y,
+            test_size=combined_test_size,
+            random_state=random_state,
+            stratify=df["target"]
+        )
+
+        # Split temp into val and test
+        relative_test_size = test_size / combined_test_size
+        temp_targets = np.argmax(y_temp, axis=1)
+        X_val, X_test, y_val, y_test = train_test_split(
+            X_temp,
+            y_temp,
+            test_size=relative_test_size,
+            random_state=random_state,
+            stratify=temp_targets
+        )
+
+        return (
+            X_train,
+            X_val,
+            X_test,
+            y_train,
+            y_val,
+            y_test,
+            tokenizer,
+            label_encoder,
+            df
+        )
+
+    # Standard train/test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=test_size,
+        random_state=random_state,
+        stratify=df["target"]
+    )
+
+    return (
+        X_train,
+        X_test,
+        y_train,
+        y_test,
+        tokenizer,
+        label_encoder,
+        df
+    )
+
+
+if __name__ == "__main__":
+    X_train, X_test, y_train, y_test, tokenizer, label_encoder, df = prepare_data()
+    print(f"X_train shape: {X_train.shape}, X_test shape: {X_test.shape}")
+    print(f"y_train shape: {y_train.shape}, y_test shape: {y_test.shape}")
