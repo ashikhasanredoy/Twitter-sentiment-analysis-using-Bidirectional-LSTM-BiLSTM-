@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
       apiStatusEl.classList.remove("ready", "warning");
       if (data.model_ready) {
         apiStatusEl.classList.add("ready");
-        statusLabel.textContent = "BiLSTM Ready";
+        statusLabel.textContent = "Model Ready";
       } else {
         apiStatusEl.classList.add("warning");
         statusLabel.textContent = "Model Not Yet Trained";
