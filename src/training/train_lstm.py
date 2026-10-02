@@ -11,6 +11,7 @@ from tensorflow.keras.layers import (
     Dense,
     SpatialDropout1D
 )
+from tensorflow.keras.callbacks import EarlyStopping
 
 from src.preprocessing.prepare_data import prepare_data
 from src.preprocessing.tokenize import MAX_FEATURES, MAX_LENGTH
@@ -46,7 +47,7 @@ def build_lstm_model(input_length=MAX_LENGTH):
     return model
 
 
-def train_lstm(epochs=5, batch_size=32):
+def train_lstm(epochs=10, batch_size=32):
     (
         X_train,
         X_test,
@@ -60,6 +61,13 @@ def train_lstm(epochs=5, batch_size=32):
     model = build_lstm_model(X_train.shape[1])
     model.summary()
 
+    early_stopping = EarlyStopping(
+        monitor="val_loss",
+        patience=2,
+        restore_best_weights=True,
+        verbose=1
+    )
+
     print("Starting LSTM training...")
     history = model.fit(
         X_train,
@@ -67,6 +75,7 @@ def train_lstm(epochs=5, batch_size=32):
         epochs=epochs,
         batch_size=batch_size,
         validation_data=(X_test, y_test),
+        callbacks=[early_stopping],
         verbose=1
     )
 
