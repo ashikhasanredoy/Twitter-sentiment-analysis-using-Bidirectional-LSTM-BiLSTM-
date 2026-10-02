@@ -69,14 +69,6 @@ document.addEventListener("DOMContentLoaded", () => {
     charCounter.textContent = `${tweetInput.value.length} / 300`;
   });
 
-  document.querySelectorAll(".pill-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const sample = btn.getAttribute("data-text");
-      tweetInput.value = sample;
-      charCounter.textContent = `${sample.length} / 300`;
-      predictSingle();
-    });
-  });
 
   async function predictSingle() {
     const text = tweetInput.value.trim();

@@ -237,42 +237,6 @@ textarea:focus {
   margin-top: 4px;
 }
 
-.samples-group {
-  margin-bottom: 20px;
-}
-
-.samples-label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  color: var(--text-light);
-  margin-bottom: 8px;
-  letter-spacing: 0.03em;
-}
-
-.sample-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.pill-btn {
-  background-color: #ffffff;
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.pill-btn:hover {
-  border-color: var(--border-dark);
-  color: var(--text-main);
-}
 
 .btn-submit {
   width: 100%;
