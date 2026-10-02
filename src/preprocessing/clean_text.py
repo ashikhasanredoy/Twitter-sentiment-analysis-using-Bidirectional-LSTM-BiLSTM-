@@ -1,18 +1,14 @@
 import re
 
+URL_PATTERN = re.compile(r"https?://\S+|www\.\S+")
+MENTION_HASHTAG_PATTERN = re.compile(r"[@#]\w+|#")
+PUNCTUATION_PATTERN = re.compile(r"[^\w\s]")
+WHITESPACE_PATTERN = re.compile(r"\s+")
 
-def clean_tweet(text):
+
+def clean_tweet(text: str) -> str:
     text = str(text).lower()
-
-    text = re.sub(
-        r"http\S+|www\S+|https\S+",
-        "",
-        text,
-        flags=re.MULTILINE
-    )
-
-    text = re.sub(r"@\w+|#", "", text)
-    text = re.sub(r"[^\w\s]", "", text)
-    text = re.sub(r"\s+", " ", text).strip()
-
-    return text
+    text = URL_PATTERN.sub("", text)
+    text = MENTION_HASHTAG_PATTERN.sub("", text)
+    text = PUNCTUATION_PATTERN.sub("", text)
+    return WHITESPACE_PATTERN.sub(" ", text).strip()
