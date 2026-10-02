@@ -1,34 +1,37 @@
 import os
 import pickle
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+from src.config import config
 from src.preprocessing.clean_text import clean_tweet
-from src.preprocessing.tokenize import MAX_LENGTH
+from src.preprocessing.tokenize import tokenize_and_pad
 
 
 class SentimentPredictor:
     def __init__(
         self,
-        model_path: Union[str, Path] = "models/lstm/lstm_model.keras",
-        tokenizer_path: Union[str, Path] = "models/lstm/tokenizer.pkl",
-        label_encoder_path: Union[str, Path] = "models/lstm/label_encoder.pkl"
+        model_path: Optional[Union[str, Path]] = None,
+        tokenizer_path: Optional[Union[str, Path]] = None,
+        label_encoder_path: Optional[Union[str, Path]] = None
     ):
-        for path in (model_path, tokenizer_path, label_encoder_path):
-            if not os.path.exists(path):
-                raise FileNotFoundError(f"Artifact not found: {path}")
+        self.model_path = Path(model_path) if model_path else config.MODEL_PATH
+        self.tokenizer_path = Path(tokenizer_path) if tokenizer_path else config.TOKENIZER_PATH
+        self.label_encoder_path = Path(label_encoder_path) if label_encoder_path else config.LABEL_ENCODER_PATH
 
-        self.model = load_model(model_path)
+        for path in (self.model_path, self.tokenizer_path, self.label_encoder_path):
+            if not path.exists():
+                raise FileNotFoundError(f"Model artifact not found: {path}. Run: python -m src.training.train")
 
-        with open(tokenizer_path, "rb") as file:
-            self.tokenizer = pickle.load(file)
-
-        with open(label_encoder_path, "rb") as file:
-            self.label_encoder = pickle.load(file)
+        self.model = load_model(self.model_path)
+        with open(self.tokenizer_path, "rb") as f:
+            self.tokenizer = pickle.load(f)
+        with open(self.label_encoder_path, "rb") as f:
+            self.label_encoder = pickle.load(f)
 
         self.classes = list(self.label_encoder.classes_)
 
@@ -50,8 +53,7 @@ class SentimentPredictor:
 
     def predict_batch(self, texts: List[str]) -> List[Dict[str, Any]]:
         cleaned_texts = [clean_tweet(t) for t in texts]
-        sequences = self.tokenizer.texts_to_sequences(cleaned_texts)
-        padded = pad_sequences(sequences, maxlen=MAX_LENGTH)
+        padded = tokenize_and_pad(cleaned_texts, self.tokenizer, max_length=config.MAX_LENGTH)
         all_probs = self.model.predict(padded, verbose=0)
 
         return [

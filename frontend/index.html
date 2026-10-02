@@ -20,14 +20,14 @@
         </div>
         <div>
           <h1 class="brand-title">Sentiment Analysis</h1>
-          <p class="brand-subtitle">Deep Learning Model Comparison</p>
+          <p class="brand-subtitle">Bidirectional LSTM Deep Learning Architecture</p>
         </div>
       </div>
 
       <div class="header-meta">
         <div class="status-badge" id="api-status">
           <span class="status-dot"></span>
-          <span id="status-label">Checking models...</span>
+          <span id="status-label">Checking model...</span>
         </div>
       </div>
     </header>
@@ -43,13 +43,7 @@
         <section class="card">
           <div class="card-header">
             <h2>Input Tweet</h2>
-            <div class="select-group">
-              <label for="model-select">Model</label>
-              <select id="model-select" class="select-input">
-                <option value="lstm">LSTM</option>
-                <option value="bilstm">BiLSTM</option>
-              </select>
-            </div>
+            <span class="model-tag">BiLSTM</span>
           </div>
 
           <div class="form-group">
@@ -81,7 +75,7 @@
         <section class="card" id="result-panel">
           <div class="card-header">
             <h2>Prediction Results</h2>
-            <span class="model-tag" id="model-tag">LSTM</span>
+            <span class="model-tag">BiLSTM</span>
           </div>
 
           <div id="result-placeholder" class="empty-state">
@@ -146,13 +140,7 @@
       <section class="card">
         <div class="card-header">
           <h2>Batch Processing</h2>
-          <div class="select-group">
-            <label for="batch-model-select">Model</label>
-            <select id="batch-model-select" class="select-input">
-              <option value="lstm">LSTM</option>
-              <option value="bilstm">BiLSTM</option>
-            </select>
-          </div>
+          <span class="model-tag">BiLSTM</span>
         </div>
         <p class="helper-text">Enter one tweet per line to evaluate multiple inputs simultaneously.</p>
         <textarea id="batch-input" rows="6" placeholder="I love this product!&#10;Service was poor and slow.&#10;The event starts at noon."></textarea>

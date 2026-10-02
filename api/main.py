@@ -4,18 +4,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
+from src.config import config
 from api.schemas import (
     PredictionRequest,
     PredictionResponse,
     BatchPredictionRequest,
     BatchPredictionResponse,
-    ModelInfo
+    HealthResponse
 )
 from api.predictor import model_service
 
 app = FastAPI(
     title="Twitter Sentiment Analysis API",
-    description="Dual-Model (LSTM vs BiLSTM) Sentiment Classification API for Tweets",
+    description="Production BiLSTM Deep Learning API for Sentiment Classification",
     version="1.0.0"
 )
 
@@ -27,54 +28,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-if os.path.exists("results/figures"):
-    app.mount("/figures", StaticFiles(directory="results/figures"), name="figures")
+if config.FIGURES_DIR.exists():
+    app.mount("/figures", StaticFiles(directory=str(config.FIGURES_DIR)), name="figures")
 
-if os.path.exists("frontend"):
-    app.mount("/static", StaticFiles(directory="frontend"), name="static")
+if config.FRONTEND_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(config.FRONTEND_DIR)), name="static")
 
 
 @app.get("/", response_class=FileResponse)
 def root():
-    frontend_index = os.path.join("frontend", "index.html")
-    if os.path.exists(frontend_index):
-        return FileResponse(frontend_index)
-    return {"message": "Twitter Sentiment Analysis API is running. Visit /docs for OpenAPI specs."}
+    index_file = config.FRONTEND_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(str(index_file))
+    return {"message": "Twitter Sentiment Analysis BiLSTM API is running. Visit /docs for OpenAPI specs."}
 
 
-@app.get("/api/health")
+@app.get("/api/health", response_model=HealthResponse)
 def health_check():
-    status = model_service.get_status()
-    return {
-        "status": "healthy",
-        "models": status
-    }
-
-
-@app.get("/api/models")
-def list_models():
-    status = model_service.get_status()
-    return [
-        ModelInfo(
-            name="Long Short-Term Memory (LSTM)",
-            type="lstm",
-            status="available" if status["lstm_ready"] else "not_trained",
-            path="models/lstm/lstm_model.keras"
-        ),
-        ModelInfo(
-            name="Bidirectional LSTM (BiLSTM)",
-            type="bilstm",
-            status="available" if status["bilstm_ready"] else "not_trained",
-            path="models/bilstm/bilstm_model.keras"
-        )
-    ]
+    return HealthResponse(
+        status="healthy",
+        model_ready=model_service.is_ready(),
+        model_name="BiLSTM"
+    )
 
 
 @app.post("/api/predict", response_model=PredictionResponse)
 def predict_sentiment(request: PredictionRequest):
-    model_type = (request.model_type or "lstm").lower()
     try:
-        predictor = model_service.get_predictor(model_type)
+        predictor = model_service.get_predictor()
         res = predictor.predict(request.text)
         return PredictionResponse(
             text=res["text"],
@@ -82,7 +63,7 @@ def predict_sentiment(request: PredictionRequest):
             sentiment=res["sentiment"],
             confidence=res["confidence"],
             probabilities=res["probabilities"],
-            model_type=model_type
+            model_name="BiLSTM"
         )
     except FileNotFoundError as fnf:
         raise HTTPException(status_code=503, detail=str(fnf))
@@ -92,9 +73,8 @@ def predict_sentiment(request: PredictionRequest):
 
 @app.post("/api/predict/batch", response_model=BatchPredictionResponse)
 def predict_batch(request: BatchPredictionRequest):
-    model_type = (request.model_type or "lstm").lower()
     try:
-        predictor = model_service.get_predictor(model_type)
+        predictor = model_service.get_predictor()
         results = predictor.predict_batch(request.texts)
         responses = [
             PredictionResponse(
@@ -103,14 +83,14 @@ def predict_batch(request: BatchPredictionRequest):
                 sentiment=r["sentiment"],
                 confidence=r["confidence"],
                 probabilities=r["probabilities"],
-                model_type=model_type
+                model_name="BiLSTM"
             )
             for r in results
         ]
         return BatchPredictionResponse(
             predictions=responses,
-            model_type=model_type,
-            count=len(responses)
+            count=len(responses),
+            model_name="BiLSTM"
         )
     except FileNotFoundError as fnf:
         raise HTTPException(status_code=503, detail=str(fnf))

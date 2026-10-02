@@ -4,8 +4,6 @@ from src.preprocessing.tokenize import (
     tokenize_and_pad,
     save_tokenizer,
     load_tokenizer,
-    MAX_FEATURES,
-    MAX_LENGTH,
 )
 from src.preprocessing.prepare_data import prepare_data, load_dataset
 
@@ -17,6 +15,4 @@ __all__ = [
     "load_tokenizer",
     "prepare_data",
     "load_dataset",
-    "MAX_FEATURES",
-    "MAX_LENGTH",
 ]

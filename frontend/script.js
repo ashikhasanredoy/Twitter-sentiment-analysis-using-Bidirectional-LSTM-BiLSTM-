@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const apiStatusEl = document.getElementById("api-status");
   const statusLabel = document.getElementById("status-label");
-  const modelSelect = document.getElementById("model-select");
-  const batchModelSelect = document.getElementById("batch-model-select");
   
   const tweetInput = document.getElementById("tweet-input");
   const charCounter = document.getElementById("char-counter");
@@ -10,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const resultPlaceholder = document.getElementById("result-placeholder");
   const resultContent = document.getElementById("result-content");
-  const modelTag = document.getElementById("model-tag");
   const sentimentBanner = document.getElementById("sentiment-banner");
   const sentimentLabel = document.getElementById("sentiment-label");
   const confidenceVal = document.getElementById("confidence-val");
@@ -50,20 +47,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/api/health");
       if (!res.ok) throw new Error("API unreachable");
       const data = await res.json();
-      
-      const lstm = data.models?.lstm_ready;
-      const bilstm = data.models?.bilstm_ready;
 
       apiStatusEl.classList.remove("ready", "warning");
-      if (lstm && bilstm) {
+      if (data.model_ready) {
         apiStatusEl.classList.add("ready");
-        statusLabel.textContent = "Models Ready";
-      } else if (lstm || bilstm) {
-        apiStatusEl.classList.add("ready");
-        statusLabel.textContent = lstm ? "LSTM Ready" : "BiLSTM Ready";
+        statusLabel.textContent = "BiLSTM Ready";
       } else {
         apiStatusEl.classList.add("warning");
-        statusLabel.textContent = "Models Not Yet Trained";
+        statusLabel.textContent = "Model Not Yet Trained";
       }
     } catch {
       apiStatusEl.classList.remove("ready");
@@ -94,7 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const modelType = modelSelect.value;
     btnPredict.disabled = true;
     btnPredict.textContent = "Analyzing...";
 
@@ -102,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/api/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, model_type: modelType })
+        body: JSON.stringify({ text })
       });
 
       if (!res.ok) {
@@ -124,7 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
     resultPlaceholder.classList.add("hidden");
     resultContent.classList.remove("hidden");
 
-    modelTag.textContent = data.model_type.toUpperCase();
     cleanedTextDisplay.textContent = data.cleaned_text || "-";
 
     const sentiment = data.sentiment.toLowerCase();
@@ -158,7 +147,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const lines = raw.split("\n").map(l => l.trim()).filter(Boolean);
-    const modelType = batchModelSelect.value;
 
     btnBatchPredict.disabled = true;
     btnBatchPredict.textContent = "Processing...";
@@ -167,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/api/predict/batch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ texts: lines, model_type: modelType })
+        body: JSON.stringify({ texts: lines })
       });
 
       if (!res.ok) {
@@ -180,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
       
       data.predictions.forEach(p => {
         const tr = document.createElement("tr");
-        const sent = p.sentiment.toLowerCase();
         tr.innerHTML = `
           <td>${escapeHtml(p.text)}</td>
           <td><code>${escapeHtml(p.cleaned_text)}</code></td>

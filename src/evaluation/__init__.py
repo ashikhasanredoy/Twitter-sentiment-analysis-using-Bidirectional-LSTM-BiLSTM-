@@ -1,3 +1,3 @@
-from src.evaluation.evaluate import evaluate_model, compare_models
+from src.evaluation.evaluate import evaluate
 
-__all__ = ["evaluate_model", "compare_models"]
+__all__ = ["evaluate"]
