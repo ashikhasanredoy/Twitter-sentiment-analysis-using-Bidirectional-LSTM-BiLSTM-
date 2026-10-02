@@ -1,4 +1,3 @@
-# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -9,19 +8,16 @@ venv/
 .venv/
 ENV/
 
-# Data & Models (Large artifacts)
 *.h5
 *.keras
 *.pkl
 !models/.gitkeep
 
-# Operating System & IDE
 .DS_Store
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Jupyter
 .ipynb_checkpoints
 */.ipynb_checkpoints/*

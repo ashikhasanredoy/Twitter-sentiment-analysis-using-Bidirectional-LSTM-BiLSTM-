@@ -50,9 +50,6 @@ def build_bilstm_model(input_length=MAX_LENGTH):
 
 
 def train_bilstm(epochs=5, batch_size=32):
-    # -----------------------------
-    # Prepare data
-    # -----------------------------
     (
         X_train,
         X_test,
@@ -63,15 +60,9 @@ def train_bilstm(epochs=5, batch_size=32):
         df
     ) = prepare_data()
 
-    # -----------------------------
-    # Build model
-    # -----------------------------
     model = build_bilstm_model(X_train.shape[1])
     model.summary()
 
-    # -----------------------------
-    # Train
-    # -----------------------------
     print("Starting BiLSTM training...")
     history = model.fit(
         X_train,
@@ -82,36 +73,21 @@ def train_bilstm(epochs=5, batch_size=32):
         verbose=1
     )
 
-    # -----------------------------
-    # Create directories
-    # -----------------------------
     os.makedirs("models/bilstm", exist_ok=True)
     os.makedirs("results/figures", exist_ok=True)
 
-    # -----------------------------
-    # Save model
-    # -----------------------------
     model_save_path = "models/bilstm/bilstm_model.keras"
     model.save(model_save_path)
     print(f"Model saved to {model_save_path}")
 
-    # -----------------------------
-    # Save tokenizer
-    # -----------------------------
     with open("models/bilstm/tokenizer.pkl", "wb") as file:
         pickle.dump(tokenizer, file)
     print("Tokenizer saved to models/bilstm/tokenizer.pkl")
 
-    # -----------------------------
-    # Save label encoder
-    # -----------------------------
     with open("models/bilstm/label_encoder.pkl", "wb") as file:
         pickle.dump(label_encoder, file)
     print("Label encoder saved to models/bilstm/label_encoder.pkl")
 
-    # -----------------------------
-    # Accuracy graph
-    # -----------------------------
     plt.figure(figsize=(8, 5))
     plt.plot(history.history["accuracy"], label="Train")
     plt.plot(history.history["val_accuracy"], label="Validation")
@@ -122,11 +98,7 @@ def train_bilstm(epochs=5, batch_size=32):
     plt.tight_layout()
     plt.savefig("results/figures/bilstm_accuracy.png", dpi=300)
     plt.close()
-    print("Saved results/figures/bilstm_accuracy.png")
 
-    # -----------------------------
-    # Loss graph
-    # -----------------------------
     plt.figure(figsize=(8, 5))
     plt.plot(history.history["loss"], label="Train")
     plt.plot(history.history["val_loss"], label="Validation")
@@ -137,7 +109,6 @@ def train_bilstm(epochs=5, batch_size=32):
     plt.tight_layout()
     plt.savefig("results/figures/bilstm_loss.png", dpi=300)
     plt.close()
-    print("Saved results/figures/bilstm_loss.png")
 
     return model, history
 

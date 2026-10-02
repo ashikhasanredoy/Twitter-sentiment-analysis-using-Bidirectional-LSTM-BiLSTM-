@@ -41,7 +41,6 @@ body {
   line-height: 1.6;
 }
 
-/* Background Ambient Glows */
 .background-glow {
   position: fixed;
   width: 500px;
@@ -73,7 +72,6 @@ body {
   padding: 24px 20px 48px;
 }
 
-/* Header Navbar */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -183,7 +181,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* Tabs */
 .tabs-nav {
   display: flex;
   gap: 12px;
@@ -232,7 +229,6 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Main Grid */
 .main-grid {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
@@ -245,7 +241,6 @@ body {
   }
 }
 
-/* Glass Panels */
 .glass-panel {
   background: var(--surface-color);
   border: 1px solid var(--surface-border);
@@ -294,7 +289,6 @@ body {
   border-color: var(--primary-accent);
 }
 
-/* Text Input */
 .input-wrapper {
   position: relative;
   margin-bottom: 16px;
@@ -327,7 +321,6 @@ textarea#tweet-input:focus, textarea.batch-textarea:focus {
   color: var(--text-dim);
 }
 
-/* Quick Samples */
 .samples-wrapper {
   margin-bottom: 24px;
 }
@@ -366,7 +359,6 @@ textarea#tweet-input:focus, textarea.batch-textarea:focus {
   transform: translateY(-1px);
 }
 
-/* Primary Button */
 .btn-primary {
   width: 100%;
   display: flex;
@@ -396,7 +388,6 @@ textarea#tweet-input:focus, textarea.batch-textarea:focus {
   transform: translateY(0);
 }
 
-/* Result Panel */
 .badge {
   background: rgba(59, 130, 246, 0.15);
   color: #93c5fd;
@@ -424,7 +415,6 @@ textarea#tweet-input:focus, textarea.batch-textarea:focus {
   display: none !important;
 }
 
-/* Sentiment Banner */
 .sentiment-banner {
   display: flex;
   align-items: center;
@@ -470,7 +460,6 @@ textarea#tweet-input:focus, textarea.batch-textarea:focus {
   color: var(--color-neg);
 }
 
-/* Probabilities Bars */
 .prob-breakdown {
   margin-bottom: 24px;
 }
@@ -521,7 +510,6 @@ textarea#tweet-input:focus, textarea.batch-textarea:focus {
   color: var(--text-muted);
 }
 
-/* Pipeline preview */
 .pipeline-card {
   background: rgba(10, 15, 28, 0.6);
   border: 1px solid var(--surface-border);
@@ -548,7 +536,6 @@ textarea#tweet-input:focus, textarea.batch-textarea:focus {
   word-break: break-all;
 }
 
-/* Batch Table */
 .section-desc {
   font-size: 0.9rem;
   color: var(--text-muted);
@@ -585,7 +572,6 @@ textarea#tweet-input:focus, textarea.batch-textarea:focus {
   letter-spacing: 0.05em;
 }
 
-/* EDA Gallery */
 .eda-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -620,7 +606,6 @@ textarea#tweet-input:focus, textarea.batch-textarea:focus {
   display: block;
 }
 
-/* Footer */
 .footer {
   text-align: center;
   margin-top: 40px;

@@ -15,7 +15,6 @@
   <div class="background-glow bottom-right"></div>
 
   <div class="app-container">
-    <!-- Header -->
     <header class="navbar">
       <div class="logo-group">
         <div class="logo-icon">
@@ -47,7 +46,6 @@
       </div>
     </header>
 
-    <!-- Main Navigation Tabs -->
     <div class="tabs-nav">
       <button class="tab-btn active" data-tab="tab-predict" id="btn-tab-predict">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
@@ -63,10 +61,8 @@
       </button>
     </div>
 
-    <!-- TAB 1: Single Prediction -->
     <main class="tab-content active" id="tab-predict">
       <div class="main-grid">
-        <!-- Input Card -->
         <section class="glass-panel" aria-label="Tweet Input Area">
           <div class="panel-header">
             <h2>Analyze Tweet Sentiment</h2>
@@ -91,7 +87,6 @@
             </div>
           </div>
 
-          <!-- Quick Samples -->
           <div class="samples-wrapper">
             <span class="samples-title">Try quick samples:</span>
             <div class="sample-chips">
@@ -109,7 +104,6 @@
           </button>
         </section>
 
-        <!-- Result Card -->
         <section class="glass-panel result-panel" id="result-panel" aria-label="Sentiment Results">
           <div class="panel-header">
             <h2>Inference Insights</h2>
@@ -122,7 +116,6 @@
           </div>
 
           <div id="result-content" class="result-details hidden">
-            <!-- Sentiment Outcome Banner -->
             <div class="sentiment-banner" id="sentiment-banner">
               <div class="sentiment-icon" id="sentiment-icon">😊</div>
               <div class="sentiment-info">
@@ -131,7 +124,6 @@
               </div>
             </div>
 
-            <!-- Probability Breakdown Bars -->
             <div class="prob-breakdown">
               <h3>Class Distribution</h3>
               <div class="prob-row">
@@ -159,7 +151,6 @@
               </div>
             </div>
 
-            <!-- Preprocessing Transparency -->
             <div class="pipeline-card">
               <h4>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
@@ -172,7 +163,6 @@
       </div>
     </main>
 
-    <!-- TAB 2: Batch Testing -->
     <div class="tab-content" id="tab-batch">
       <section class="glass-panel">
         <div class="panel-header">
@@ -206,7 +196,6 @@
       </section>
     </div>
 
-    <!-- TAB 3: Dataset Analytics (EDA) -->
     <div class="tab-content" id="tab-eda">
       <section class="glass-panel">
         <div class="panel-header">
@@ -244,7 +233,6 @@
       </section>
     </div>
 
-    <!-- Footer -->
     <footer class="footer">
       <p>Twitter Sentiment Analysis Pipeline • LSTM & BiLSTM with Shared Preprocessing • Clean Modular Architecture</p>
     </footer>

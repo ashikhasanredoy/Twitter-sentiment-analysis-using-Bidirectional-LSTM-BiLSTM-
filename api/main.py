@@ -19,7 +19,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Enable CORS for local testing and frontend interaction
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -28,11 +27,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount figures directory if it exists
 if os.path.exists("results/figures"):
     app.mount("/figures", StaticFiles(directory="results/figures"), name="figures")
 
-# Mount frontend directory for static assets
 if os.path.exists("frontend"):
     app.mount("/static", StaticFiles(directory="frontend"), name="static")
 

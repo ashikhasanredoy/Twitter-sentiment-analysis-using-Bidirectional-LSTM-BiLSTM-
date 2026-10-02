@@ -28,20 +28,9 @@ def evaluate_model(
     model_name="LSTM",
     data_tuple=None
 ):
-    """
-    Evaluates a trained model on the test dataset.
-    Generates:
-      - Confusion matrix plot in output_dir
-      - Classification report in metrics_dir
-    Returns:
-      dict with evaluation metrics
-    """
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(metrics_dir, exist_ok=True)
 
-    # -----------------------------
-    # Prepare data or use passed tuple
-    # -----------------------------
     if data_tuple is None:
         (
             X_train,
@@ -55,32 +44,20 @@ def evaluate_model(
     else:
         X_train, X_test, y_train, y_test, tokenizer, label_encoder = data_tuple
 
-    # -----------------------------
-    # Load trained model
-    # -----------------------------
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found at: {model_path}")
 
     print(f"\nEvaluating {model_name} from: {model_path}")
     model = load_model(model_path)
 
-    # -----------------------------
-    # Prediction
-    # -----------------------------
     y_pred_probs = model.predict(X_test, verbose=0)
     y_pred = np.argmax(y_pred_probs, axis=1)
 
-    # -----------------------------
-    # True labels
-    # -----------------------------
     if len(y_test.shape) > 1:
         y_true = np.argmax(y_test, axis=1)
     else:
         y_true = y_test
 
-    # -----------------------------
-    # Confusion Matrix
-    # -----------------------------
     cm = confusion_matrix(y_true, y_pred)
     plt.figure(figsize=(7, 6))
     sns.heatmap(
@@ -101,9 +78,6 @@ def evaluate_model(
     plt.close()
     print(f"Confusion matrix saved to {cm_path}")
 
-    # -----------------------------
-    # Classification Report
-    # -----------------------------
     report_str = classification_report(
         y_true,
         y_pred,
@@ -118,7 +92,6 @@ def evaluate_model(
         file.write(report_str)
     print(f"Report saved to {report_path}")
 
-    # Compute summary numbers for comparison
     acc = accuracy_score(y_true, y_pred)
     prec, rec, f1, _ = precision_recall_fscore_support(y_true, y_pred, average="macro")
 
@@ -132,16 +105,12 @@ def evaluate_model(
 
 
 def compare_models(models_to_eval=None, metrics_dir="results/metrics"):
-    """
-    Evaluates multiple models and writes a comparison CSV.
-    """
     if models_to_eval is None:
         models_to_eval = [
             ("models/lstm/lstm_model.keras", "LSTM"),
             ("models/bilstm/bilstm_model.keras", "BiLSTM")
         ]
 
-    # Shared data preparation for fair comparison
     (
         X_train,
         X_test,

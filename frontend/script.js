@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Elements
   const apiStatusEl = document.getElementById("api-status");
   const statusLabel = document.getElementById("status-label");
   const modelSelect = document.getElementById("model-select");
@@ -30,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const batchResultsContainer = document.getElementById("batch-results-container");
   const batchTableBody = document.getElementById("batch-table-body");
 
-  // Tabs logic
   const tabBtns = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
 
@@ -48,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Check health and available models
   async function checkHealth() {
     try {
       const res = await fetch("/api/health");
@@ -78,13 +75,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   checkHealth();
 
-  // Character counter
   tweetInput.addEventListener("input", () => {
     const len = tweetInput.value.length;
     charCounter.textContent = `${len} / 300`;
   });
 
-  // Quick sample chips
   document.querySelectorAll(".chip").forEach(chip => {
     chip.addEventListener("click", () => {
       const sample = chip.getAttribute("data-text");
@@ -94,7 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Single Tweet Prediction
   async function predictSingle() {
     const text = tweetInput.value.trim();
     if (!text) {
@@ -153,7 +147,6 @@ document.addEventListener("DOMContentLoaded", () => {
     sentimentLabel.textContent = sentiment.toUpperCase();
     confidenceVal.textContent = `${(data.confidence * 100).toFixed(1)}%`;
 
-    // Probability bars
     const probs = data.probabilities || {};
     const pos = (probs.positive || 0) * 100;
     const neu = (probs.neutral || 0) * 100;
@@ -171,7 +164,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   btnPredict.addEventListener("click", predictSingle);
 
-  // Batch Prediction
   btnBatchPredict.addEventListener("click", async () => {
     const raw = batchInput.value.trim();
     if (!raw) {

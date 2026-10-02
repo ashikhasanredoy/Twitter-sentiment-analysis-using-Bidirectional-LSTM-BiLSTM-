@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from wordcloud import WordCloud
 
-# Set style
 sns.set_theme(style="whitegrid")
 plt.rcParams.update({"font.size": 11})
 
@@ -26,7 +25,6 @@ def run_eda(data_path=DATA_PATH, output_dir=FIGURES_DIR):
     print("\nMissing values:\n", df.isna().sum())
     print("\nSentiment value counts:\n", df["sentiment"].value_counts())
 
-    # 1. Sentiment Distribution
     print("Generating Sentiment Distribution plot...")
     plt.figure(figsize=(8, 5))
     palette = {"positive": "#2ecc71", "neutral": "#3498db", "negative": "#e74c3c"}
@@ -54,7 +52,6 @@ def run_eda(data_path=DATA_PATH, output_dir=FIGURES_DIR):
     plt.savefig(os.path.join(output_dir, "sentiment_distribution.png"), dpi=300)
     plt.close()
 
-    # 2. Sentiment Trends by Time of Day
     if "Time of Tweet" in df.columns:
         print("Generating Sentiment Trends by Time plot...")
         plt.figure(figsize=(10, 6))
@@ -73,7 +70,6 @@ def run_eda(data_path=DATA_PATH, output_dir=FIGURES_DIR):
         plt.savefig(os.path.join(output_dir, "sentiment_time.png"), dpi=300)
         plt.close()
 
-    # 3. Sentiment by Age
     if "Age of User" in df.columns:
         print("Generating Age Distribution vs Sentiment plot...")
         plt.figure(figsize=(12, 6))
@@ -93,7 +89,6 @@ def run_eda(data_path=DATA_PATH, output_dir=FIGURES_DIR):
         plt.savefig(os.path.join(output_dir, "sentiment_age.png"), dpi=300)
         plt.close()
 
-    # 4. Positive Wordcloud
     print("Generating Positive Wordcloud...")
     pos_text = " ".join(t for t in df[df["sentiment"] == "positive"]["text"].dropna().astype(str))
     pos_wc = WordCloud(
@@ -111,7 +106,6 @@ def run_eda(data_path=DATA_PATH, output_dir=FIGURES_DIR):
     plt.savefig(os.path.join(output_dir, "positive_wordcloud.png"), dpi=300)
     plt.close()
 
-    # 5. Negative Wordcloud
     print("Generating Negative Wordcloud...")
     neg_text = " ".join(t for t in df[df["sentiment"] == "negative"]["text"].dropna().astype(str))
     neg_wc = WordCloud(
@@ -129,7 +123,6 @@ def run_eda(data_path=DATA_PATH, output_dir=FIGURES_DIR):
     plt.savefig(os.path.join(output_dir, "negative_wordcloud.png"), dpi=300)
     plt.close()
 
-    # 6. Top 10 Countries
     if "Country" in df.columns:
         print("Generating Top 10 Countries plot...")
         plt.figure(figsize=(9, 8))
